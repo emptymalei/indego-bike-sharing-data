@@ -1,0 +1,7 @@
+source:
+  - name: main_page
+    link: https://www.rideindego.com/about/data/
+  - name: station_information
+    link: https://www.rideindego.com/about/data/
+  - name: station_status
+    link: http://www.rideindego.com/stations/json/
