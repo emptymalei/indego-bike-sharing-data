@@ -102,8 +102,12 @@ class DataDownloader():
     """Download data from links
     """
 
-    def __init__(self, links, folder=None):
+    def __init__(self, links, data_type, folder=None):
+        """
+        :param data_type: Data type of the links, can be 'zip' or 'data'
+        """
         self.links = links
+        self.data_type = data_type
         if folder is None:
             folder = os.path.join(os.sep, 'tmp', 'rideindego')
         self.folder = folder
@@ -119,28 +123,27 @@ class DataDownloader():
         except FileExistsError:
             logger.info("Already exists: " , self.folder)
 
-
     def _download_binary_files(self):
         """Download binary files
         """
 
-        self._zip_files = []
+        self._binary_files = []
         for idx, link in enumerate(self.links):
             target_file = os.path.join(self.folder, str(idx)+'.zip')
             file_content = get_page_html(link).get('data')
             try:
                 with open(target_file, 'wb') as fp:
                     fp.write(file_content.content)
-                self._zip_files.append(target_file)
+                self._binary_files.append(target_file)
                 logger.debug(f'Downloaded {target_file}')
             except Exception as ee:
                 logger.error(f'Could not download {link}')
                 pass
-        logger.info('Downloaded {} zip files!'.format(len(self._zip_files)))
+        logger.info('Downloaded {} zip files!'.format(len(self._binary_files)))
 
     def _unzip_data_files(self):
         self._data_files = []
-        for data_file in self._zip_files:
+        for data_file in self._binary_files:
             try:
                 with zipfile.ZipFile(data_file,"r") as zip_ref:
                     zip_ref.extractall(self.folder)
@@ -154,26 +157,22 @@ class DataDownloader():
         """
 
         link_count = len(self.links)
-        zip_file_count = len(self._zip_files)
-        csv_file_count = len(self._data_files)
+        self.data_files = self._binary_files
+        if self.data_type == 'zip':
+            self.data_files = self._data_files
+        data_file_count = len(self.data_files)
 
-        if zip_file_count != link_count:
+        if data_file_count != link_count:
             logger.error(
-                f'Did not download all zip files: links: {link_count}, zips: {zip_file_count}'
-                )
-        if csv_file_count != zip_file_count:
-            logger.error(
-                f'Did not download all zip files: zips: {zip_file_count}, csv: {csv_file_count}'
+                f'Data files Errors: links: {link_count}, zips: {data_file_count}'
                 )
 
         res = {
             'folder': self.folder,
             'links': self.links,
             'link_count': link_count,
-            'zip_files': self._zip_files,
-            'zip_count': zip_file_count,
-            'csv_files': self._data_files,
-            'csv_count': csv_file_count
+            'data_files': self._binary_files,
+            'data_count': data_file_count
             }
 
         return res
@@ -182,7 +181,8 @@ class DataDownloader():
         """Connect the pipes to extract csv files
         """
         self._download_binary_files()
-        self._unzip_data_files()
+        if self.data_type == 'zip':
+            self._unzip_data_files()
 
         return self._summary()
 
