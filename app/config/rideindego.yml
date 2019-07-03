@@ -4,6 +4,9 @@ etl:
     datapath:
       - tmp
       - rideindego
+    combined_data_path:
+      - tmp
+      - rideindego_all.csv
   station_info:
     source: https://www.rideindego.com/wp-content/uploads/2019/04/indego-stations-2019-04-01.csv
     datapath:
