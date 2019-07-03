@@ -1,7 +1,17 @@
-source:
-  - name: main_page
-    link: https://www.rideindego.com/about/data/
-  - name: station_information
-    link: https://www.rideindego.com/about/data/
-  - name: station_status
-    link: http://www.rideindego.com/stations/json/
+etl:
+  trip_data:
+    source: https://www.rideindego.com/about/data/
+    datapath:
+      - tmp
+      - rideindego
+  station_info:
+    source: https://www.rideindego.com/wp-content/uploads/2019/04/indego-stations-2019-04-01.csv
+    datapath:
+      - tmp
+      - station_information.csv
+  station_status:
+    source: https://dkw6qugbfeznv.cloudfront.net/
+    datapath:
+      - tmp
+      - station_status.json
+

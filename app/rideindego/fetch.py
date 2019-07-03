@@ -14,6 +14,7 @@ from helpers.web import random_user_agent as _random_user_agent
 logging.basicConfig()
 logger = logging.getLogger('rideindego.fetch')
 
+_CONFIG = _get_config()
 
 def get_page_html(
     link,
@@ -102,16 +103,25 @@ class DataDownloader():
     """Download data from links
     """
 
-    def __init__(self, links, data_type, folder=None):
+    def __init__(self, links, data_type, filenames=None, folder=None):
         """
         :param data_type: Data type of the links, can be 'zip' or 'data'
         """
         self.links = links
         self.data_type = data_type
         if folder is None:
-            folder = os.path.join(os.sep, 'tmp', 'rideindego')
+            datadir = _CONFIG.get('datadir')
+            if not datadir:
+                logger.error('No datadir in config, using /tmp/rideindego')
+                folder = os.path.join(os.sep, 'tmp', 'rideindego')
+            else:
+                folder = f'{os.sep}' + f'{os.sep}'.join(datadir)
         self.folder = folder
         self.__check_folder_exist()
+        if len(filenames) != len(links):
+            raise Exception('len(filenames) do not match len(links)!')
+        else:
+            self.filenames = filenames
 
     def __check_folder_exist(self, create=True):
         """Check if a folder is already there; Create folder if does not exist
@@ -171,7 +181,7 @@ class DataDownloader():
             'folder': self.folder,
             'links': self.links,
             'link_count': link_count,
-            'data_files': self._binary_files,
+            'data_files': self.data_files,
             'data_count': data_file_count
             }
 
@@ -188,17 +198,13 @@ class DataDownloader():
 
 
 if __name__ == "__main__":
-    CONFIG = _get_config()
-    sources = CONFIG.get('source',{})
-    for source in sources:
-        if source.get('name') == 'main_page':
-            main_page_link = source.get('link')
-
-    page = get_page_html(main_page_link).get('data',{})
+    source_link = _CONFIG.get('etl',{}).get('trip_data',{}).get('source')
+    page = get_page_html(source_link).get('data',{})
     page_extractor = DataLinkHTMLExtractor(page)
     links = page_extractor.get_data_links()
 
 
     dld = DataDownloader(links)
     dld.run()
+    _CONFIG.get('datadir')
     print('END OF GAME')
