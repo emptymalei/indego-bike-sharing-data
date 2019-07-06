@@ -8,13 +8,11 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from config import get_config as _get_config
-from helpers.web import random_user_agent as _random_user_agent
+from rideindego.parse_config import get_config as _get_config
+from rideindego.helpers.web import random_user_agent as _random_user_agent
 
 logging.basicConfig()
 logger = logging.getLogger('rideindego.fetch')
-
-_CONFIG = _get_config()
 
 def get_page_html(
     link,
@@ -103,25 +101,32 @@ class DataDownloader():
     """Download data from links
     """
 
-    def __init__(self, links, data_type, filenames=None, folder=None):
+    def __init__(
+        self, links, data_type, config=None, filenames=None, folder=None
+        ):
         """
         :param data_type: Data type of the links, can be 'zip' or 'data'
         """
         self.links = links
         self.data_type = data_type
+        if config is None:
+            self.config = {}
+        else:
+            self.config = config
         if folder is None:
-            datadir = _CONFIG.get('datadir')
+            datadir = self.config.get('datapath')
             if not datadir:
-                logger.error('No datadir in config, using /tmp/rideindego')
+                logger.error('No datapath in config, using /tmp/rideindego')
                 folder = os.path.join(os.sep, 'tmp', 'rideindego')
             else:
                 folder = f'{os.sep}' + f'{os.sep}'.join(datadir)
         self.folder = folder
         self.__check_folder_exist()
-        if len(filenames) != len(links):
-            raise Exception('len(filenames) do not match len(links)!')
-        else:
-            self.filenames = filenames
+        if filenames:
+            if len(filenames) != len(links):
+                raise Exception('len(filenames) do not match len(links)!')
+            else:
+                self.filenames = filenames
 
     def __check_folder_exist(self, create=True):
         """Check if a folder is already there; Create folder if does not exist
@@ -149,7 +154,9 @@ class DataDownloader():
             except Exception as ee:
                 logger.error(f'Could not download {link}')
                 pass
-        logger.info('Downloaded {} zip files!'.format(len(self._binary_files)))
+        logger.info(
+            'Downloaded {} zip files!'.format(len(self._binary_files))
+            )
 
     def _unzip_data_files(self):
         self._data_files = []
@@ -198,11 +205,13 @@ class DataDownloader():
 
 
 if __name__ == "__main__":
+
+    _CONFIG = _get_config()
+
     source_link = _CONFIG.get('etl',{}).get('trip_data',{}).get('source')
     page = get_page_html(source_link).get('data',{})
     page_extractor = DataLinkHTMLExtractor(page)
     links = page_extractor.get_data_links()
-
 
     dld = DataDownloader(links)
     dld.run()
