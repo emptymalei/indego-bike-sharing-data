@@ -85,6 +85,16 @@ class TripDataCleansing():
             lambda x: int(float(x.split(' ')[-1].split(':')[0]))
             )
 
+        # get weekday
+        self.trip_data['weekday'] = self.trip_data.date.apply(
+            lambda x: x.weekday()
+            )
+
+        # get month
+        self.trip_data['month'] = self.trip_data.date.apply(
+            lambda x: x.month
+        )
+
     def _duration_normalization(self):
         """Duration was recorded as seconds before 2017-04-01.
 

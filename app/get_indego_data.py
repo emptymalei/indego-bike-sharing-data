@@ -28,6 +28,7 @@ def main():
     dld = DataDownloader(links, data_type='zip', config=etl_trip_data_config)
     dld.run()
 
+    # data cleansing
     logger.info('Cleaning up data')
     cleaner = TripDataCleansing(etl_trip_data_config)
     cleaner.pipeline()
