@@ -1,7 +1,7 @@
-# saloodo
+# Indego bike sharing
 
-Saloodo technical challenge
+Indego bike sharing data
 
 ## Development
 
-1. create environment `conda create --name saloodo pip`
+1. create environment `conda create --name indego pip`

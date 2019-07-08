@@ -114,13 +114,19 @@ class TripDataCleansing():
             [df_all_before_2017q1, df_all_after_2017q1]
             )
 
+    def _fill_station_id(self):
+        """start_station_id has null values
+
+        fillna with 0 for the station id
+        """
+        self.trip_data['start_station_id'].fillna(0, inplace=True)
+
     def _backfill_bike_types(self):
         """Bike types did not exist until q3 of 2018
          because they only had standard before this.
         """
 
         self.trip_data['bike_type'] = self.trip_data.bike_type.fillna('standard')
-
 
     def _save_all_trip_data(self):
         """Dump all trip data to the destination define in config
@@ -156,6 +162,7 @@ class TripDataCleansing():
         self._datetime_transformations()
         self._duration_normalization()
         self._backfill_bike_types()
+        self._fill_station_id()
 
         # dave data
         self._save_all_trip_data()
