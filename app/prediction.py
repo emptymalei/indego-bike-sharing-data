@@ -103,7 +103,8 @@ def calculate_model(data_path):
         'model': model,
         'score': score,
         'best_params': dt_regressor.best_params_,
-        'encoders': dt_encoders
+        'encoders': dt_encoders,
+        'scaler': scaler
         }
 
 
@@ -147,24 +148,28 @@ def main():
     model_result = calculate_model(data_path)
 
     logger.info(
-        'best parameters: {}'.format(model_result.get('get_param')),
+        'best parameters: {}'.format(model_result.get('get_params')),
         'score: {}'.format(model_result.get('score'))
         )
 
-    encoders = model_result.get('encoders')
+    # encoders = model_result.get('encoders')
+    print("features", features, 'type: ', type(features))
+    df_features = pd.DataFrame.from_records([features])
+    # for i in df_features.columns:
+    #     df_features[i] = df_features[i].apply(
+    #         lambda x: encoders.get(i).transform([x])[0]
+    #         )
 
-    df_features = pd.DataFrame.from_dict(features)
-    for i in df_features.columns:
-        df_test[i] = df_features[i].apply(
-            lambda x: encoders.get(i).transform([x])[0]
-            )
-
-    model = model_result.get('mode')
-    model_predict = model.predict(df_features)
+    model = model_result.get('model')
+    model_predict = model_result.get('scaler').inverse_transform(
+        model.predict(df_features)
+        )
     logger.info('predicted duration: {}'.format(model_predict))
 
 
 
 if __name__ == "__main__":
+
     main()
+
     print('END OF GAME')
