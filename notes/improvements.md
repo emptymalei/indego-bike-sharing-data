@@ -11,4 +11,4 @@
     1. Weather: rain, temperature;
     2. Geolocations: I created a geolocation tool using OSM data.
     3. Holiday data
-2. 
+2. Better features
