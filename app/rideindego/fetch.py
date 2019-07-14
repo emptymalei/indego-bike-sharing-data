@@ -145,6 +145,10 @@ class DataDownloader():
         self._binary_files = []
         for idx, link in enumerate(self.links):
             target_file = os.path.join(self.folder, str(idx)+'.zip')
+            # Check status: sometimes it fails to download
+            # the actual data file thus unzip fails.
+            # check the status code and retry
+            # will solve this problem
             file_content = get_page_html(link).get('data')
             try:
                 with open(target_file, 'wb') as fp:
