@@ -3,4 +3,7 @@ urllib3==1.22
 PyYAML==3.13
 simplejson>=3.16.0
 pandas>=0.24.2
+torch>=1.1.0.post2
+torchvision>=0.3.0
 sklearn
+skorch>=0.6.0
