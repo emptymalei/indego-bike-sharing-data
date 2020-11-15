@@ -12,23 +12,24 @@ import pytz
 from shapely.ops import transform
 
 logging.basicConfig()
-_logger = logging.getLogger('app.geo.util')
+_logger = logging.getLogger("app.geo.util")
 
 
 def load_records(data_path_inp):
 
     data = []
 
-    with open(data_path_inp, 'r') as fp:
+    with open(data_path_inp, "r") as fp:
         for line in fp:
-            line = line.replace('null', ' "None" ')
+            line = line.replace("null", ' "None" ')
             try:
                 line_data = json.loads(line.strip())
             except Exception as ee:
-                logging.warning('could not load ', line, '\n', ee)
+                logging.warning("could not load ", line, "\n", ee)
             data.append(line_data)
 
     return data
+
 
 def save_records(data_inp, output, is_flush=None):
 
@@ -40,17 +41,17 @@ def save_records(data_inp, output, is_flush=None):
     elif isinstance(data_inp, dict):
         data = [data_inp]
     else:
-        raise Exception('Input data is neither list nor dict: {}'.format(data_inp))
+        raise Exception("Input data is neither list nor dict: {}".format(data_inp))
 
     try:
-        with open(output, 'a+') as fp:
+        with open(output, "a+") as fp:
             for i in data:
                 json.dump(i, fp)
-                fp.write('\n')
+                fp.write("\n")
                 if is_flush:
                     fp.flush()
     except Exception as ee:
-        raise Exception('Could not load data to file: {}'.format(ee))
+        raise Exception("Could not load data to file: {}".format(ee))
 
 
 def check_and_convert_to_date(x):
@@ -69,11 +70,11 @@ def check_and_convert_to_date(x):
         return x
     if isinstance(x, str):
         try:
-            return datetime.datetime.strptime(x, '%Y-%m-%d').date()
+            return datetime.datetime.strptime(x, "%Y-%m-%d").date()
         except ValueError as v:
-            raise ValueError('Could not convert date - error: {}'.format(v))
+            raise ValueError("Could not convert date - error: {}".format(v))
     else:
-        raise ValueError('Could not convert input {} to date'.format(x))
+        raise ValueError("Could not convert input {} to date".format(x))
 
 
 def check_and_convert_to_datetime(input_date, convert_to_utc=False):
@@ -132,42 +133,40 @@ def split_dataframe(df_inp, chunk_size=None, chunks=None):
     """
 
     if chunks:
-        chunk_size = int(df_inp.shape[0]/chunks)
+        chunk_size = int(df_inp.shape[0] / chunks)
 
     batch_df = [
-            df_inp.iloc[df_inp.index[i:i + chunk_size]]
-            for i in range(0, df_inp.shape[0], chunk_size)
-            ]
+        df_inp.iloc[df_inp.index[i : i + chunk_size]]
+        for i in range(0, df_inp.shape[0], chunk_size)
+    ]
 
     return batch_df
 
 
 def file_exists(file_path):
-    """Check if a file exists, if a file is found, the stats will be logged
-    """
+    """Check if a file exists, if a file is found, the stats will be logged"""
 
     is_file = False
     if os.path.isfile(file_path):
         is_file = True
-        file_size = round(float(os.stat(file_path).st_size/float(1<<20)))
+        file_size = round(float(os.stat(file_path).st_size / float(1 << 20)))
     else:
         file_size = None
 
     return is_file, file_size
 
+
 def distance_between_geom(geom1, geom2, proj):
-    """Calculate distance between two shapely objects
-    """
+    """Calculate distance between two shapely objects"""
 
-    geom1_conv = transform( proj, geom1 )
-    geom2_conv = transform( proj, geom2 )
+    geom1_conv = transform(proj, geom1)
+    geom2_conv = transform(proj, geom2)
 
-    return geom1_conv.distance( geom2_conv )
+    return geom1_conv.distance(geom2_conv)
 
 
 def insert_to_dict_at_level(dictionary, dict_key_path, dict_value):
-    """Insert values to dictioinary according to path specified
-    """
+    """Insert values to dictioinary according to path specified"""
 
     dictionary_nested_in = dictionary
 
@@ -179,6 +178,7 @@ def insert_to_dict_at_level(dictionary, dict_key_path, dict_value):
     dictionary_nested_in[dict_key_path[-1]] = dict_value
 
     return dictionary
+
 
 def get_dict_val_recursively(dictionary, names):
     """
@@ -196,7 +196,7 @@ def get_dict_val_recursively(dictionary, names):
     elif isinstance(names, str):
         tmp = [names].copy()
     else:
-        raise ValueError('names must be str or list')
+        raise ValueError("names must be str or list")
     if len(tmp) > 1:
         pop = tmp.pop(0)
         try:
@@ -207,7 +207,7 @@ def get_dict_val_recursively(dictionary, names):
         try:
             return get_dict_val_recursively(dictionary[pop], tmp)
         except:
-            _logger.error('Could not get: '.format(pop))
+            _logger.error("Could not get: ".format(pop))
             return None
     elif len(tmp) == 0:
         return None
@@ -219,11 +219,12 @@ def get_dict_val_recursively(dictionary, names):
         try:
             return dictionary[val]
         except KeyError:
-            _logger.error('KeyError: Could not find {}'.format(tmp[0]))
+            _logger.error("KeyError: Could not find {}".format(tmp[0]))
             return None
         except TypeError:
-            _logger.error('TypeError: Could not find {}'.format(tmp[0]))
+            _logger.error("TypeError: Could not find {}".format(tmp[0]))
             return None
+
 
 def isoencode(obj):
     """
@@ -248,7 +249,7 @@ def isoencode(obj):
     json.dumps(blabla, ignore_nan=True, default=isoencode)
     ```
     """
-    if isinstance(obj, pd._libs.tslibs.nattype.NaTType ):
+    if isinstance(obj, pd._libs.tslibs.nattype.NaTType):
         # TODO
         # This NaTType is a private class
         # This is considered as a temporary solution to the NaTType check
@@ -261,7 +262,7 @@ def isoencode(obj):
         return obj.tolist()
     if isinstance(obj, (np.int64, np.int32, np.int16, np.int)):
         return int(obj)
-    if isinstance(obj, (np.float64, np.float32, np.float16, np.float, float) ):
+    if isinstance(obj, (np.float64, np.float32, np.float16, np.float, float)):
         if obj is not np.nan:
             return float(obj)
         else:

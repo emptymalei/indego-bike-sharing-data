@@ -8,3 +8,5 @@ torchvision>=0.3.0
 sklearn
 skorch>=0.6.0
 graphviz>=0.11.1
+loguru>=0.5.3
+click>=7.1.2
