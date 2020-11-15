@@ -4,18 +4,19 @@ import os
 import yaml as _yaml
 
 __cwd__ = os.getcwd()
-__location__ = os.path.realpath(
-    os.path.join(__cwd__, os.path.dirname(__file__))
-    )
+__location__ = os.path.realpath(os.path.join(__cwd__, os.path.dirname(__file__)))
 
 
 def get_config(config_file_path=None):
+    """
+    get_config builds config
+    """
 
     if not config_file_path:
-        config_file_path = os.path.join(__location__, '..', 'config', 'rideindego.yml')
-    with open(config_file_path, 'r') as fp:
+        config_file_path = os.path.join(__location__, "..", "config", "rideindego.yml")
+    with open(config_file_path, "r") as fp:
         return _yaml.load(fp)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(__location__)
